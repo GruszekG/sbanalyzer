@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="ico">g.jpg</file>
+        <file>skate.jpg</file>
+        <file>brokeSkate.png</file>
+    </qresource>
+</RCC>

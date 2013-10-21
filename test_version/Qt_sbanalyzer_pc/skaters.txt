@@ -1,0 +1,6 @@
+SKATEBOARD ANALYZER SKATERS DATABASE
+#
+>1;Grzegorz;goofy;Wroclaw;grzegorz@sbanalyzer.pl;lubi jesc gruszki;5;23;
+>2;Lukasz;regular;Wroclaw;-;ok;6;23;
+>3;Pawel;-;-;-;-;-;-;
+#
