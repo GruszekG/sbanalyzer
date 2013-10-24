@@ -19,6 +19,9 @@ bool dataReceived;
 /*---------------------------------------------*/
 int main(void)
 {
+	//tests
+//	unsigned char buf[20];
+//	unsigned char len;
 	/*------BOARD INITIALIZATION-------------*/
    	while(Init_board()!=TRUE);
 	LED_2_ON();
@@ -26,12 +29,17 @@ int main(void)
 	LED_2_OFF();
 	Delay(500);
 
-	RFM73_SwitchToRxMode();
+
+	//RFM73_SwitchToRxMode();
 
 	dataReceived = FALSE;
 
 	while (1)
 	{
+		//testts
+		//Delay(100);
+		//Receive_Packet(buf, &len);
+		//test
 		if (dataReceived)
 		{
 			RFM73_SwitchToTxMode();
@@ -42,11 +50,16 @@ int main(void)
 				case Measure_Cmd:
 				{
 					Delay(100);
-					if(Cmd_OK == startCommand())
-						acceptedCmd();
-					else
+					if(Cmd_OK != startCommand())
 						noAcceptedCmd();
-
+					else 
+					{
+					TIM2_SingleShot();
+					Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, 4);
+					Delay(100);
+						RFM73_SwitchToRxMode();
+					}
+					//	Delay(50);
 				}	break;
 				case Info_Cmd:
 				{
@@ -55,10 +68,10 @@ int main(void)
 				}	break;
 				case Conf_Cmd:
 				{
-					if(Cmd_OK != confCommand())
-						noAcceptedCmd();
-					else
-						acceptedCmd();
+				//	if(Cmd_OK != confCommand())
+				//		noAcceptedCmd();
+				//	else
+					//	acceptedCmd();
 							
 				}	break;
 				default:
@@ -66,7 +79,7 @@ int main(void)
 					noAcceptedCmd();		
 				}
 			}
-			USART_ITConfig(USART1, USART_IT_TXE, ENABLE);	
+		//USART_ITConfig(USART1, USART_IT_TXE, ENABLE);	
 		}	
 	};
 }
@@ -79,7 +92,7 @@ bool Init_board(void)
 {
 	RCC_Conf();
 	NVIC_Setup();
-	//TIM2_Setup();
+	TIM2_Setup();
 	USART1_Config();
 	RFM73_EXTI_Enable();
 	SysTick_Config_Mod(SysTick_CLKSource_HCLK_Div8, 9000);
@@ -119,7 +132,7 @@ void GPIO_Conf(void)
 // NVIC configuration
 void NVIC_Setup(void){
 //
-	NVIC_InitTypeDef /*NVIC_InitStruct_TIM2,*/NVIC_InitStructure,NVIC_InitStruct_USART1 ;
+	NVIC_InitTypeDef NVIC_InitStruct_TIM2,NVIC_InitStructure,NVIC_InitStruct_USART1 ;
 
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
@@ -136,12 +149,12 @@ void NVIC_Setup(void){
 	NVIC_InitStruct_USART1.NVIC_IRQChannelSubPriority = 1;
 	NVIC_Init(&NVIC_InitStruct_USART1);
 	
-//	NVIC_InitStruct_TIM2.NVIC_IRQChannel = TIM2_IRQn;
-//	NVIC_InitStruct_TIM2.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_InitStruct_TIM2.NVIC_IRQChannelPreemptionPriority = 1;
-//	NVIC_InitStruct_TIM2.NVIC_IRQChannelSubPriority = 3;
-//
-//	NVIC_Init(&NVIC_InitStruct_TIM2);								
+	NVIC_InitStruct_TIM2.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStruct_TIM2.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStruct_TIM2.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStruct_TIM2.NVIC_IRQChannelSubPriority = 3;
+
+	NVIC_Init(&NVIC_InitStruct_TIM2);								
 	
 }
 
@@ -150,14 +163,15 @@ void TIM2_Setup(void){
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 
 	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period = 300;
+	TIM_TimeBaseInitStruct.TIM_Period = 12000-1;           //0,5ms * 4000 = 4s
 	TIM_TimeBaseInitStruct.TIM_Prescaler = 36000;				//72MHz / 36000 = 2kHz => T=0,5ms
-//	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	//TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStruct);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM2, ENABLE);
+	TIM_SetCounter(TIM2, 0);
+	//TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	//TIM_Cmd(TIM2, ENABLE);
 }
 
 unsigned long int SysTick_Config_Mod(unsigned long int SysTick_CLKSource, unsigned long int Ticks)
@@ -187,4 +201,11 @@ unsigned long int SysTick_Config_Mod(unsigned long int SysTick_CLKSource, unsign
 	SysTick->CTRL = Settings;
                                                                
  	return (0);     
+}
+
+void TIM2_SingleShot(void)
+{
+		TIM_SetCounter(TIM2, 0);
+    TIM_Cmd(TIM2, ENABLE);
+    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 }

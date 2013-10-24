@@ -2,6 +2,7 @@
 #include "memsSettings.h"
 #include "stdio.h"
 #include "rfm73.h"
+#include "usart.h"
 
 
 extern unsigned char buforRx[17];
@@ -64,8 +65,8 @@ CheckCmd startCommand()
 	else if(buforRx[2] != (buforRx[0]+buforRx[1])) return Cmd_CHECK_SUM_ERROR;
 	else
 	{
-		Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);
-	}		
+		//Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);				
+	}
 	return Cmd_OK;
 }
 
@@ -90,10 +91,14 @@ CheckCmd confCommand()
 
 void acceptedCmd(void)
 {
+
 	buforTx[0] = 'A';
 	buforTx[1] = 'C';
 	buforTx[2] = 'K';
 	buforTx[3] = 0x0d;
+	buforTx[4] = 0;
+	
+	USART1_SendText(buforTx);
 }
 
 void noAcceptedCmd(void)
@@ -103,4 +108,7 @@ void noAcceptedCmd(void)
 	buforTx[2] = 'C';
 	buforTx[3] = 'K';
 	buforTx[4] = 0x0d;
+	buforTx[5] = 0;
+	
+	USART1_SendText(buforTx);
 }

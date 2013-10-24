@@ -157,21 +157,33 @@ void SysTick_Handler(void)
 	TimingDelay_Decrement();
 }
 
-void TIM2_IRQHandler(void)
-{
-	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
-//	if(GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_0)==SET)
-//	{
-//		GPIO_SetBits(GPIOB, GPIO_Pin_1);
-//		GPIO_ResetBits(GPIOB, GPIO_Pin_0);
-//	}
-//	else 
-//	{
-//		GPIO_SetBits(GPIOB, GPIO_Pin_0);
-//		GPIO_ResetBits(GPIOB, GPIO_Pin_1);
-//	}
-//	USART1_SendText("Siemka");
+//void TIM2_IRQHandler(void)
+//{
+//	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+////	if(GPIO_ReadOutputDataBit(GPIOB, GPIO_Pin_0)==SET)
+////	{
+////		GPIO_SetBits(GPIOB, GPIO_Pin_1);
+////		GPIO_ResetBits(GPIOB, GPIO_Pin_0);
+////	}
+////	else 
+////	{
+////		GPIO_SetBits(GPIOB, GPIO_Pin_0);
+////		GPIO_ResetBits(GPIOB, GPIO_Pin_1);
+////	}
+////	USART1_SendText("Siemka");
 
+//}
+
+void TIM2_IRQHandler(void)//debug timer
+{
+	if(TIM_GetITStatus(TIM2, TIM_FLAG_Update) != RESET)
+	{
+		TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+		TIM_Cmd(TIM2, DISABLE);  
+    TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+		noAcceptedCmd();
+		RFM73_SwitchToTxMode();
+	}
 }
 
 void USART1_IRQHandler(void)
@@ -199,15 +211,16 @@ void USART1_IRQHandler(void)
 		}
 	}
 
-	if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
-	{  
-		USART_SendData(USART1, buforTx[bufTxIndex++]);      //Wyslij kolejny znak i zwieksz indeks bufora wyjsciowego
-		if(buforTx[bufTxIndex-1] == 0x0D)                   //Jesli wysylany zostal ostatni znak (CR)
-		{
-			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);    //Wylacz przerwanie = koniec transmisji
-			bufTxIndex = 0;                                 
-		}    
-	}
+//	if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
+//	{  
+//		USART_SendData(USART1, buforTx[bufTxIndex++]);      //Wyslij kolejny znak i zwieksz indeks bufora wyjsciowego
+//		if(buforTx[bufTxIndex-1] == 0x0D)                   //Jesli wysylany zostal ostatni znak (CR)
+//		{
+//			USART_ClearFlag(USART1, TIM_FLAG_Update);
+//			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);    //Wylacz przerwanie = koniec transmisji
+//			bufTxIndex = 0;                                 
+//		}    
+//	}
 }
 
 void EXTI3_IRQHandler(void)
@@ -216,11 +229,25 @@ void EXTI3_IRQHandler(void)
 	uint8_t rx_buf[MAX_PACKET_LEN]; 
 	uint8_t i, chksum; 
 	if(EXTI_GetITStatus(RFM73_EXTI_Line) != RESET)
-	{	
+	{
+		TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+		TIM_Cmd(TIM2, DISABLE);  
+    TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+		
 		if(GPIO_ReadOutputDataBit(RFM73_SPI_GPIO, RFM73_IRQ) == RESET)
 		{
 		Receive_Packet(rx_buf, &len);
-			if ((rx_buf[0] != 0 )/*&&(sendData == 1)*/)
+			if((len>0)&&(rx_buf[0] == 'A'))
+			{
+				RFM73_SwitchToTxMode();
+						acceptedCmd();
+			}
+			else
+			{
+				RFM73_SwitchToTxMode();
+					noAcceptedCmd();
+			}
+			if ((rx_buf[0] != TRANS_START )/*&&(sendData == 1)*/)
 			{
 				chksum = 0;
 				for (i = 1; i < (len-1); i++)

@@ -268,9 +268,9 @@ void RFM73_SwitchToTxMode()
 //PTX
 		value=value&0xfe;	//	mask all bits without first / switch to PTX
   	SPI_Write_Reg(WRITE_REG, CONFIG, value); // Set PWR_UP bit, enable CRC(2 length) & Prim:RX. RX_DR enabled.
-	//Delay(2);
+	Delay(2);
 	RFM73_CE_High();
-//	Delay(2);
+	Delay(2);
 }
 
 /**************************************************

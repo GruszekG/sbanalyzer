@@ -254,6 +254,8 @@ void DialogWindow::onStartCommand()
     MeasureCmd MCmd;
     MCmd.loadMeasureCmd(6);
     QByteArray bytes = MCmd.getMeasureCmd();
+    port->readAll();
+    port->flush();
     port->write(bytes.constData());
     QByteArray dane;
     char _end;
@@ -263,6 +265,8 @@ void DialogWindow::onStartCommand()
            dane.append(_end);
     }while(_end != 0x0d);
     ui->recvEdit->insertPlainText(QString("SB:>") + QString(dane));
+    port->readAll();
+    port->flush();
 }
 
 /*---------------------------------------------------------------------------------*/

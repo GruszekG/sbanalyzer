@@ -7,6 +7,9 @@
 .metadata
 bin/
 tmp/
+lst/
+Makefile*
+*uvgui.*
 *.tmp
 *.bak
 *.swp
@@ -15,6 +18,8 @@ local.properties
 .classpath
 .settings/
 .loadpath
+*.Grzegorz Gruszka
+sba_com_board.uvgui.Grzegorz*
 
 # External tool builders
 .externalToolBuilders/

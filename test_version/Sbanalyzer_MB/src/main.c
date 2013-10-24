@@ -5,6 +5,7 @@
 #include "L3G4200D.h"
 #include "LPY4150AL.h"
 #include "RFM73.h"
+#include "commands.h"
 
 #include "stm32f10x_it.h"
 
@@ -26,8 +27,12 @@ int main(void)
 //	NVIC_Conf();
 //	RFM73_EXTI_Enable();
 //	TIM2_Conf();
-
-	while(1);
+//	LIS3DH_to_RFM73(); //change spi mode
+	while(1)
+	{
+	//	Delay(100);
+	//	acceptedCmd();
+	};
 }
 
 
@@ -71,7 +76,7 @@ bool Init_board(void)
 
 	RFM73_CSN_High();
 
-	RFM73_to_LIS3DH();
+//	RFM73_to_LIS3DH();
 	
 	measurementTime = 5;
 	measurementFreq = 800;
@@ -174,7 +179,7 @@ void TIM2_Conf(void){
 	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStruct);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+//	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 //	TIM_Cmd(TIM2, ENABLE);
 }
 void NVIC_Conf(void)
@@ -203,7 +208,7 @@ void TIM2_Enable(void)
 }
 void TIM2_Disable(void)
 {
-	//TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+	TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
 	TIM_Cmd(TIM2, DISABLE);
 }
 

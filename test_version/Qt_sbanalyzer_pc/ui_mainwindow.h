@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu 5. Sep 18:53:55 2013
+** Created: Mon 21. Oct 23:31:14 2013
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -43,7 +43,6 @@ public:
     QLabel *label_4;
     QWidget *page;
     QGridLayout *gridLayout_2;
-    QPushButton *pushButtonRealTimeGraph;
     QPushButton *quitButton;
     QLabel *label;
     QPushButton *skatersButton;
@@ -52,6 +51,7 @@ public:
     QPushButton *aboutSkateButton;
     QPushButton *visualizationButton;
     QPushButton *trickMeasurementButton;
+    QPushButton *pushButtonRealTimeGraph;
     QWidget *page_2;
     QVBoxLayout *verticalLayout_2;
     QTableWidget *skatersTable;
@@ -143,30 +143,17 @@ public:
         gridLayout_2->setSpacing(6);
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        pushButtonRealTimeGraph = new QPushButton(page);
-        pushButtonRealTimeGraph->setObjectName(QString::fromUtf8("pushButtonRealTimeGraph"));
+        quitButton = new QPushButton(page);
+        quitButton->setObjectName(QString::fromUtf8("quitButton"));
         QFont font1;
         font1.setFamily(QString::fromUtf8("Bauhaus 93"));
         font1.setPointSize(20);
         font1.setBold(false);
         font1.setWeight(50);
-        font1.setKerning(false);
-        pushButtonRealTimeGraph->setFont(font1);
-        pushButtonRealTimeGraph->setCursor(QCursor(Qt::PointingHandCursor));
-
-        gridLayout_2->addWidget(pushButtonRealTimeGraph, 2, 0, 1, 1);
-
-        quitButton = new QPushButton(page);
-        quitButton->setObjectName(QString::fromUtf8("quitButton"));
-        QFont font2;
-        font2.setFamily(QString::fromUtf8("Bauhaus 93"));
-        font2.setPointSize(20);
-        font2.setBold(false);
-        font2.setWeight(50);
-        quitButton->setFont(font2);
+        quitButton->setFont(font1);
         quitButton->setCursor(QCursor(Qt::PointingHandCursor));
 
-        gridLayout_2->addWidget(quitButton, 12, 0, 1, 1);
+        gridLayout_2->addWidget(quitButton, 13, 0, 1, 1);
 
         label = new QLabel(page);
         label->setObjectName(QString::fromUtf8("label"));
@@ -177,13 +164,13 @@ public:
         palette1.setBrush(QPalette::Inactive, QPalette::WindowText, brush3);
         palette1.setBrush(QPalette::Disabled, QPalette::WindowText, brush2);
         label->setPalette(palette1);
-        QFont font3;
-        font3.setFamily(QString::fromUtf8("Bauhaus 93"));
-        font3.setPointSize(36);
-        font3.setBold(false);
-        font3.setItalic(true);
-        font3.setWeight(50);
-        label->setFont(font3);
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("Bauhaus 93"));
+        font2.setPointSize(36);
+        font2.setBold(false);
+        font2.setItalic(true);
+        font2.setWeight(50);
+        label->setFont(font2);
         label->setTextFormat(Qt::AutoText);
         label->setAlignment(Qt::AlignCenter);
         label->setMargin(0);
@@ -193,17 +180,17 @@ public:
 
         skatersButton = new QPushButton(page);
         skatersButton->setObjectName(QString::fromUtf8("skatersButton"));
-        QFont font4;
-        font4.setFamily(QString::fromUtf8("Bauhaus 93"));
-        font4.setPointSize(20);
-        skatersButton->setFont(font4);
+        QFont font3;
+        font3.setFamily(QString::fromUtf8("Bauhaus 93"));
+        font3.setPointSize(20);
+        skatersButton->setFont(font3);
         skatersButton->setCursor(QCursor(Qt::PointingHandCursor));
 
-        gridLayout_2->addWidget(skatersButton, 5, 0, 1, 1);
+        gridLayout_2->addWidget(skatersButton, 6, 0, 1, 1);
 
         verticalSpacer = new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        gridLayout_2->addItem(verticalSpacer, 9, 0, 1, 1);
+        gridLayout_2->addItem(verticalSpacer, 10, 0, 1, 1);
 
         line = new QFrame(page);
         line->setObjectName(QString::fromUtf8("line"));
@@ -215,26 +202,39 @@ public:
 
         aboutSkateButton = new QPushButton(page);
         aboutSkateButton->setObjectName(QString::fromUtf8("aboutSkateButton"));
-        aboutSkateButton->setFont(font4);
+        aboutSkateButton->setFont(font3);
 
-        gridLayout_2->addWidget(aboutSkateButton, 7, 0, 1, 1);
+        gridLayout_2->addWidget(aboutSkateButton, 8, 0, 1, 1);
 
         visualizationButton = new QPushButton(page);
         visualizationButton->setObjectName(QString::fromUtf8("visualizationButton"));
-        visualizationButton->setFont(font4);
+        visualizationButton->setFont(font3);
 
-        gridLayout_2->addWidget(visualizationButton, 4, 0, 1, 1);
+        gridLayout_2->addWidget(visualizationButton, 5, 0, 1, 1);
 
         trickMeasurementButton = new QPushButton(page);
         trickMeasurementButton->setObjectName(QString::fromUtf8("trickMeasurementButton"));
-        QFont font5;
-        font5.setFamily(QString::fromUtf8("Bauhaus 93"));
-        font5.setPointSize(20);
-        font5.setItalic(false);
-        trickMeasurementButton->setFont(font5);
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Bauhaus 93"));
+        font4.setPointSize(20);
+        font4.setItalic(false);
+        trickMeasurementButton->setFont(font4);
         trickMeasurementButton->setCursor(QCursor(Qt::PointingHandCursor));
 
         gridLayout_2->addWidget(trickMeasurementButton, 3, 0, 1, 1);
+
+        pushButtonRealTimeGraph = new QPushButton(page);
+        pushButtonRealTimeGraph->setObjectName(QString::fromUtf8("pushButtonRealTimeGraph"));
+        QFont font5;
+        font5.setFamily(QString::fromUtf8("Bauhaus 93"));
+        font5.setPointSize(20);
+        font5.setBold(false);
+        font5.setWeight(50);
+        font5.setKerning(false);
+        pushButtonRealTimeGraph->setFont(font5);
+        pushButtonRealTimeGraph->setCursor(QCursor(Qt::PointingHandCursor));
+
+        gridLayout_2->addWidget(pushButtonRealTimeGraph, 4, 0, 1, 1);
 
         stackedWidget->addWidget(page);
         page_2 = new QWidget();
@@ -330,7 +330,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        stackedWidget->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -343,13 +343,13 @@ public:
         skateLogo->setText(QString());
         label_4->setText(QApplication::translate("MainWindow", "sbanalyzer.pl\n"
 "MKN Synergia 2013. www.synergia.pwr.wroc.pl", 0, QApplication::UnicodeUTF8));
-        pushButtonRealTimeGraph->setText(QApplication::translate("MainWindow", "real time measurements", 0, QApplication::UnicodeUTF8));
         quitButton->setText(QApplication::translate("MainWindow", "quit", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "SkateboardAnalzyer v0.5m", 0, QApplication::UnicodeUTF8));
         skatersButton->setText(QApplication::translate("MainWindow", "skaters", 0, QApplication::UnicodeUTF8));
         aboutSkateButton->setText(QApplication::translate("MainWindow", "about the project", 0, QApplication::UnicodeUTF8));
         visualizationButton->setText(QApplication::translate("MainWindow", "skateboard visualization", 0, QApplication::UnicodeUTF8));
         trickMeasurementButton->setText(QApplication::translate("MainWindow", "trick measurement", 0, QApplication::UnicodeUTF8));
+        pushButtonRealTimeGraph->setText(QApplication::translate("MainWindow", "real time measurements", 0, QApplication::UnicodeUTF8));
         QTableWidgetItem *___qtablewidgetitem = skatersTable->horizontalHeaderItem(0);
         ___qtablewidgetitem->setText(QApplication::translate("MainWindow", "name", 0, QApplication::UnicodeUTF8));
         QTableWidgetItem *___qtablewidgetitem1 = skatersTable->horizontalHeaderItem(1);

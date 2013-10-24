@@ -33,7 +33,7 @@
 
 #include "main.h"
 
-#define switchTxToRxDelay 100
+#define switchTxToRxDelay 1000
 
  uint8_t bufor[18];
  uint32_t measurementDownCounter;
@@ -99,7 +99,7 @@ void TIM2_IRQHandler(void)
 			LPY4150AL_GetRot_16_bits(&bufor[13], &bufor[17]);
 			
 			LIS3DH_to_RFM73(); //change spi mode
-			RFM73_SwitchToTxMode();
+		//	RFM73_SwitchToTxMode();
 			
 	//		if(!(measurementDownCounter%100))
 	//		{
@@ -129,42 +129,37 @@ void TIM2_IRQHandler(void)
 void EXTI2_IRQHandler(void)
 {
 	uint8_t rx_buf[MAX_PACKET_LEN];
+		int i = 0; //test variable
 	LIS3DH_to_RFM73();
 	if(EXTI_GetITStatus(RFM73_EXTI_Line) != RESET)
 	{	
 		if(GPIO_ReadOutputDataBit(RFM73_SPI_GPIO, RFM73_IRQ) == RESET)
 		{
 			Receive_Packet(rx_buf);
+			RFM73_SwitchToTxMode();
 			if(rx_buf[0] < CmdCount)
 			{
 				switch (rx_buf[0])
 				{
 					case Measure_Cmd: //start
 					{
-						RFM73_SwitchToTxMode();
-						Delay(switchTxToRxDelay);
-						if(rx_buf[1] == 0x0d)
-						{
+							Delay(200);
 							acceptedCmd();
-							Delay(1000);
 							TIM2_Conf();
-							//TIM2_ChangePeriod(100000/measurementFreq);
 							TIM2_Enable();
 							measurementDownCounter = measurementTime*measurementFreq;
 							LED_ON();
-						}else noAcceptedCmd();
 					}
 					break;
 
 					case Conf_Cmd: //conf
 					{
 						LED_ON();
-						RFM73_SwitchToTxMode();
 						Delay(switchTxToRxDelay);
-						if(confCommand(rx_buf) == Cmd_ERROR);
-//							noAcceptedCmd();
-//						else 
-//							acceptedCmd();
+						if(confCommand(rx_buf) == Cmd_ERROR)
+							noAcceptedCmd();
+						else 
+							acceptedCmd();
 							
 						RFM73_SwitchToRxMode();
 						Delay(switchTxToRxDelay);
@@ -173,7 +168,11 @@ void EXTI2_IRQHandler(void)
 					}
 					break;
 				}
-			}else SPI_Command(FLUSH_RX);//flush Rx
+			}else 
+			{
+				SPI_Command(FLUSH_RX);//flush Rx
+				RFM73_SwitchToRxMode();
+			}
 				
 		}
 		/* Clear the  EXTI line pending bit */
