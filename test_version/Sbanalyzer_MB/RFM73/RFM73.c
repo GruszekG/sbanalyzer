@@ -341,9 +341,9 @@ Return:
 	None
 **************************************************/
 
-void Receive_Packet(unsigned char *rx_buf)
+void Receive_Packet(unsigned char *rx_buf, unsigned char *len)
 {
-	unsigned char len,i,sta,fifo_sta;
+	unsigned char i,sta,fifo_sta;
 	//unsigned char rx_buf[MAX_PACKET_LEN];
 	for(i = 0; i < MAX_PACKET_LEN ; i++)rx_buf[i] = 0;	// writing zeros to rx_buf
 	sta=SPI_Read_Reg(STATUS);	// read register STATUS's value
@@ -352,11 +352,11 @@ void Receive_Packet(unsigned char *rx_buf)
 	{
 		do
 		{
-			len=SPI_Read_Reg(R_RX_PL_WID_CMD);	// read length of recived packet
+			*len=SPI_Read_Reg((RFM73_RegAddr_TypeDef)R_RX_PL_WID_CMD);	// read length of recived packet
 
-			if(len<=MAX_PACKET_LEN)
+			if(*len<=MAX_PACKET_LEN)
 			{
-				SPI_Read_Buf(RD_RX_PLOAD, rx_buf, len);// read receive payload from RX_FIFO buffer
+				SPI_Read_Buf(RD_RX_PLOAD, rx_buf, *len);// read receive payload from RX_FIFO buffer
 			}
 			else
 			{

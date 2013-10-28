@@ -29,6 +29,10 @@
 
 extern unsigned char buforRx[17];
 extern unsigned char buforTx[17];
+
+extern unsigned char rfm_buforRx[17];
+extern unsigned char rfm_buforTx[17];
+
 extern unsigned char bufTxIndex;
 extern unsigned char bufRxIndex;
 extern bool dataReceived;
@@ -230,49 +234,57 @@ void EXTI3_IRQHandler(void)
 	uint8_t i, chksum; 
 	if(EXTI_GetITStatus(RFM73_EXTI_Line) != RESET)
 	{
-		TIM_ClearFlag(TIM2, TIM_FLAG_Update);
-		TIM_Cmd(TIM2, DISABLE);  
-    TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
 		
 		if(GPIO_ReadOutputDataBit(RFM73_SPI_GPIO, RFM73_IRQ) == RESET)
 		{
-		Receive_Packet(rx_buf, &len);
-			if((len>0)&&(rx_buf[0] == 'A'))
-			{
-				RFM73_SwitchToTxMode();
-						acceptedCmd();
+			Receive_Packet(rx_buf, &len);
+			if(len>0)
+				switch (rx_buf[0])
+				{
+					case 'A'://received ACK
+					{
+						TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+						TIM_Cmd(TIM2, DISABLE);  
+						TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+							//RFM73_SwitchToTxMode();
+							acceptedCmd();
+					} break;
+					case 'N':
+					{
+							RFM73_SwitchToTxMode();
+							//noAcceptedCmd();
+					} break;
+					case 'S':
+					{
+							chksum = 0;
+							for (i = 1; i < (len-1); i++)
+						{
+							chksum += rx_buf[i];
+						}
+						if((rx_buf[0] == TRANS_START)&&(chksum == rx_buf[len-1]))
+						{
+//							for (i = 0; i < len; i++)
+//							USART1_Send(rx_buf[i]);
+							licznik++;
+						}else
+						{
+						//	USART1_SendText("TRANS ERROR\n\r");
+						}
+						if(licznik >= 100)
+						{
+							LED_1_Change();
+							licznik = 0;
+						}
+					}
+					default:
+					{
+						//noAcceptedCmd();
+					}
+				}
 			}
-			else
-			{
-				RFM73_SwitchToTxMode();
-					noAcceptedCmd();
-			}
-			if ((rx_buf[0] != TRANS_START )/*&&(sendData == 1)*/)
-			{
-				chksum = 0;
-				for (i = 1; i < (len-1); i++)
-				{
-					chksum += rx_buf[i];
-				}
-				if((rx_buf[0] == TRANS_START)&&(chksum == rx_buf[len-1]))
-				{
-					for (i = 0; i < len; i++)
-					USART1_Send(rx_buf[i]);
-					licznik++;
-				}else
-				{
-				//	USART1_SendText("TRANS ERROR\n\r");
-				}
-				if(licznik >= 100)
-				{
-					LED_1_Change();
-					licznik = 0;
-				}
-			}	
 		}
 		/* Clear the  EXTI line pending bit */
-		EXTI_ClearITPendingBit(RFM73_EXTI_Line);
-	}	
+		EXTI_ClearITPendingBit(RFM73_EXTI_Line);	
 }
 
 

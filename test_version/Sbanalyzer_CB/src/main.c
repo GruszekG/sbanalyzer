@@ -36,12 +36,16 @@ int main(void)
 
 	while (1)
 	{
+		unsigned char len;
+		unsigned char buf[20];
 		//testts
 		//Delay(100);
 		//Receive_Packet(buf, &len);
 		//test
 		if (dataReceived)
 		{
+			SPI_Command(FLUSH_RX);//flush Rx
+			Receive_Packet(buf, &len);
 			RFM73_SwitchToTxMode();
 			
 			dataReceived = FALSE;
@@ -54,9 +58,11 @@ int main(void)
 						noAcceptedCmd();
 					else 
 					{
-					TIM2_SingleShot();
-					Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, 4);
-					Delay(100);
+						SPI_Command(FLUSH_RX);//flush Rx
+						TIM2_SingleShot();
+						Receive_Packet(buf, &len);
+						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, 4);
+						Delay(50);
 						RFM73_SwitchToRxMode();
 					}
 					//	Delay(50);
@@ -68,10 +74,13 @@ int main(void)
 				}	break;
 				case Conf_Cmd:
 				{
-				//	if(Cmd_OK != confCommand())
-				//		noAcceptedCmd();
-				//	else
-					//	acceptedCmd();
+					if(Cmd_OK != confCommand())
+						noAcceptedCmd();
+					else
+					{
+						TIM2_SingleShot();
+						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, ConfCmd_Length + 1);
+					}
 							
 				}	break;
 				default:

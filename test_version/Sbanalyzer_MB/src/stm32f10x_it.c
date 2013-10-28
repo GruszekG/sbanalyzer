@@ -129,29 +129,30 @@ void TIM2_IRQHandler(void)
 void EXTI2_IRQHandler(void)
 {
 	uint8_t rx_buf[MAX_PACKET_LEN];
-		int i = 0; //test variable
+	uint8_t len;
 	LIS3DH_to_RFM73();
 	if(EXTI_GetITStatus(RFM73_EXTI_Line) != RESET)
 	{	
 		if(GPIO_ReadOutputDataBit(RFM73_SPI_GPIO, RFM73_IRQ) == RESET)
 		{
-			Receive_Packet(rx_buf);
 			RFM73_SwitchToTxMode();
-			if(rx_buf[0] < CmdCount)
+			Receive_Packet(rx_buf, &len);
+			
+			if(len > 0  &&  rx_buf[0] < CmdCount)
 			{
 				switch (rx_buf[0])
 				{
 					case Measure_Cmd: //start
 					{
-							Delay(200);
+							Delay(100);
 							acceptedCmd();
+							Delay(1000);
 							TIM2_Conf();
 							TIM2_Enable();
 							measurementDownCounter = measurementTime*measurementFreq;
 							LED_ON();
 					}
 					break;
-
 					case Conf_Cmd: //conf
 					{
 						LED_ON();

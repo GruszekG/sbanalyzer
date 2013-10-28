@@ -70,7 +70,9 @@ bool Init_board(void)
 	Delay(500);
 	if(RFM73_Initialize() == RFM73_ERROR)	return FALSE;	 
 //	RFM73_SwitchToTxMode();
+	SPI_Command(FLUSH_TX);//flush Rx
 	RFM73_SwitchToRxMode();
+	SPI_Command(FLUSH_RX);//flush Rx
 	Delay(200);
 
 

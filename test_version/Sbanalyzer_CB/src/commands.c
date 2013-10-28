@@ -108,7 +108,6 @@ void noAcceptedCmd(void)
 	buforTx[2] = 'C';
 	buforTx[3] = 'K';
 	buforTx[4] = 0x0d;
-	buforTx[5] = 0;
 	
 	USART1_SendText(buforTx);
 }
