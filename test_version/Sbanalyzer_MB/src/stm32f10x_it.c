@@ -33,7 +33,7 @@
 
 #include "main.h"
 
-#define switchTxToRxDelay 1000
+#define switchTxToRxDelay 100
 
  uint8_t bufor[18];
  uint32_t measurementDownCounter;
@@ -156,12 +156,13 @@ void EXTI2_IRQHandler(void)
 					case Conf_Cmd: //conf
 					{
 						LED_ON();
+					//	Delay(100);
 						Delay(switchTxToRxDelay);
-						if(confCommand(rx_buf) == Cmd_ERROR)
+						if(confCommand(rx_buf) != Cmd_OK)
 							noAcceptedCmd();
 						else 
 							acceptedCmd();
-							
+						Delay(1000);	
 						RFM73_SwitchToRxMode();
 						Delay(switchTxToRxDelay);
 						LED_OFF();

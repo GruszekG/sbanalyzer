@@ -80,6 +80,8 @@ int main(void)
 					{
 						TIM2_SingleShot();
 						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, ConfCmd_Length + 1);
+						Delay(50);
+						RFM73_SwitchToRxMode();
 					}
 							
 				}	break;
