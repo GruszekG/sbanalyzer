@@ -230,14 +230,14 @@ void DialogWindow::onSendConfCommand(ConfCmd _cmd)
     port->flush();
     QByteArray bufor = _cmd.getConfCmdToBuf();
 
-    qDebug()<<"CMD:"<<(unsigned char)bufor.at(0);
-    qDebug()<<"buf[1]:"<<(unsigned char)bufor.at(1);
-    qDebug()<<"CKS: "<<(unsigned char)bufor.at(7);
-    qDebug()<<"LAST:"<<(unsigned char)bufor.at(8);
-    qDebug()<<"SEND CONFIGURATION";
+    qDebug()<<"buf[0]"<<(unsigned char)bufor.at(0)<<"   ~buf[0]"<<~(unsigned char)bufor.at(0);
+    qDebug()<<"buf[1]"<<(unsigned char)bufor.at(1)<<"   ~buf[1]"<<~(unsigned char)bufor.at(1);
+    qDebug()<<"buf[2]"<<(unsigned char)bufor.at(2)<<"   ~buf[2]"<<~(unsigned char)bufor.at(2);
+    qDebug()<<"buf[3]"<<(unsigned char)bufor.at(3)<<"   ~buf[3]"<<~(unsigned char)bufor.at(3);
+    qDebug()<<"buf[4]"<<(unsigned char)bufor.at(4)<<"   ~buf[4]"<<~(unsigned char)bufor.at(4);
+    qDebug()<<"buf[5]"<<(unsigned char)bufor.at(5)<<"   ~buf[5]"<<~(unsigned char)bufor.at(5);
+    qDebug()<<"buf[6]"<<(unsigned char)bufor.at(6)<<"   ~buf[6]"<<~(unsigned char)bufor.at(6);
 
-    qDebug()<<"WRITE BYTES: "<<(unsigned int)port->write(bufor.constData());
-     qDebug()<<"DATA WRITE";
     QByteArray dane;
     port->write(bufor);
     char _end;

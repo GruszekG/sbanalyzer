@@ -225,8 +225,8 @@ QString InfoCmd::printBatteryLevel()
     return QString("%1/100").arg(BatteryLevel);
 }
 
-MeasureCmd::MeasureCmd()
-    :MeasureTime(5)
+MeasureCmd::MeasureCmd(void)
+    :MeasureStartDelay(2)
 {
 
 }
@@ -236,8 +236,8 @@ void MeasureCmd::loadMeasureCmd(unsigned char _time)
     if(_time<16)
     {
         CmdID = Measure_Cmd;
-        MeasureTime = _time;
-        CheckSum = CmdID + MeasureTime;
+        MeasureStartDelay = _time;
+        CheckSum = CmdID + MeasureStartDelay;
         EndByte = 0x0d;
     }
 }
@@ -246,7 +246,7 @@ QByteArray MeasureCmd::getMeasureCmd()
 {
     QByteArray _cmd;
     _cmd.push_back(CmdID);
-    _cmd.push_back(MeasureTime);
+    _cmd.push_back(MeasureStartDelay);
     _cmd.push_back(CheckSum);
     _cmd.push_back(EndByte);
 
@@ -303,12 +303,12 @@ QByteArray ConfCmd::getConfCmdToBuf()
     updateCheckSum();
 
     _bufor.push_back(CmdID);
-    _bufor.push_back(~LIS3DHFreq);
-    _bufor.push_back(~LIS3DHRange);
-    _bufor.push_back(~L3G4200DFreq);
-    _bufor.push_back(~L3G4200DRange);
-    _bufor.push_back(~_time.as_bytes.hi);
-    _bufor.push_back(~_time.as_bytes.lo);
+    _bufor.push_back(LIS3DHFreq);
+    _bufor.push_back(LIS3DHRange);
+    _bufor.push_back(L3G4200DFreq);
+    _bufor.push_back(L3G4200DRange);
+    _bufor.push_back(_time.as_bytes.hi);
+    _bufor.push_back(_time.as_bytes.lo);
     _bufor.push_back(CheckSum);
     _bufor.push_back(0x0d);
     qDebug()<<"CMD ID:"<< (unsigned int) CmdID;

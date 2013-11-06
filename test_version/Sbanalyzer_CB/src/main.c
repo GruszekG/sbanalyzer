@@ -10,9 +10,15 @@
 /*--------global variables-----------*/
 unsigned char buforRx[17];
 unsigned char buforTx[17];
+
+unsigned char buforRxRFM73[17];
+unsigned char buforTxRFM73[17];
+
 unsigned char bufRxIndex;
 unsigned char bufTxIndex;
 bool dataReceived;
+
+//unsigned char tempBuf[]={0x2,96,0,64,0,0,5,0xef}; TX rfm test
 
 /*---------------------------------------------*/
 /*---------------MAIN--------------------------*/
@@ -53,15 +59,17 @@ int main(void)
 			{
 				case Measure_Cmd:
 				{
+					
 					Delay(100);
+					
+					TIM2_SingleShot();
+					SPI_Command(FLUSH_RX);//flush Rx
+					Receive_Packet(buf, &len);
+					
 					if(Cmd_OK != startCommand())
 						noAcceptedCmd();
 					else 
 					{
-						SPI_Command(FLUSH_RX);//flush Rx
-						TIM2_SingleShot();
-						Receive_Packet(buf, &len);
-						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, 4);
 						Delay(50);
 						RFM73_SwitchToRxMode();
 					}
@@ -78,16 +86,20 @@ int main(void)
 						noAcceptedCmd();
 					else
 					{
+						SPI_Command(FLUSH_RX);//flush Rx
+						SPI_Command(FLUSH_TX);//flush Rx
 						TIM2_SingleShot();
 						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, ConfCmd_Length + 1);
-						Delay(50);
+						Delay(100);
 						RFM73_SwitchToRxMode();
-					}
+						flushTXbuffer();
+						flushRXbuffer();
+				}
 							
 				}	break;
 				default:
 				{
-					noAcceptedCmd();		
+			//		noAcceptedCmd();		
 				}
 			}
 		//USART_ITConfig(USART1, USART_IT_TXE, ENABLE);	
@@ -174,7 +186,7 @@ void TIM2_Setup(void){
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 
 	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period = 12000-1;           //0,5ms * 4000 = 4s
+	TIM_TimeBaseInitStruct.TIM_Period = 4000-1;           //0,5ms * 4000 = 4s
 	TIM_TimeBaseInitStruct.TIM_Prescaler = 36000;				//72MHz / 36000 = 2kHz => T=0,5ms
 	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	//TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
@@ -219,4 +231,18 @@ void TIM2_SingleShot(void)
 		TIM_SetCounter(TIM2, 0);
     TIM_Cmd(TIM2, ENABLE);
     TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+}
+
+void flushTXbuffer(void)
+{
+	unsigned int i = 0;
+	for(i = 0; i <17; i++)
+		buforTx[i] = 0;
+}
+
+void flushRXbuffer(void)
+{
+	unsigned int i = 0;
+	for(i = 0; i <17; i++)
+		buforRx[i] = 0;
 }

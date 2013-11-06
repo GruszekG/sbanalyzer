@@ -159,7 +159,7 @@ void CE_High(void);
 
 char RFM73_Initialize(void);
 
-void Send_Packet(RFM73_TRx_TypeDef type,unsigned char* pbuf,unsigned char len);
+unsigned char Send_Packet(RFM73_TRx_TypeDef type,unsigned char* pbuf,unsigned char len);
 void Receive_Packet(unsigned char *rx_buf, unsigned char *len);
 
 

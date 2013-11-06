@@ -11,6 +11,9 @@ void NVIC_Setup(void);
 void TIM2_Setup(void);
 void TIM2_SingleShot(void);
 
+void flushRXbuffer(void);
+void flushTXbuffer(void);
+
 unsigned long int SysTick_Config_Mod(unsigned long int SysTick_CLKSource, unsigned long int Ticks);
 
 #endif

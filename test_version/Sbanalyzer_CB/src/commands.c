@@ -8,6 +8,11 @@
 extern unsigned char buforRx[17];
 extern unsigned char buforTx[17];
 
+extern unsigned char buforRxRFM73[17];
+extern unsigned char buforTxRFM73[17];
+
+
+
 
 void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd)
 {
@@ -65,7 +70,7 @@ CheckCmd startCommand()
 	else if(buforRx[2] != (buforRx[0]+buforRx[1])) return Cmd_CHECK_SUM_ERROR;
 	else
 	{
-		//Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);				
+		Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);				
 	}
 	return Cmd_OK;
 }
@@ -78,11 +83,12 @@ CheckCmd confCommand()
 	_cks += buforRx[0];
 	for(i = 1; i<ConfCmd_Length; i++)
 	{
-		buforRx[i] = ~buforRx[i];
+	//	buforRx[i] = buforRx[i];
+		//buforRx[i] = ~buforRx[i];
 		_cks += buforRx[i];
 	}
-	if(_cks != buforRx[ConfCmd_Length])
-		return Cmd_CHECK_SUM_ERROR;
+	//if(_cks != buforRx[ConfCmd_Length])
+	//	return Cmd_CHECK_SUM_ERROR;
 		
 	Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, ConfCmd_Length + 1);
 

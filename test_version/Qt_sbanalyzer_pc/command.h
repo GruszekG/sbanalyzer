@@ -59,7 +59,7 @@ class MeasureCmd : public Cmd
     QByteArray getMeasureCmd();
 
     protected:
-    unsigned char MeasureTime; //time of measure in [s]
+    unsigned char MeasureStartDelay; //time of measure in [s]
 
 
 };

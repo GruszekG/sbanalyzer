@@ -320,20 +320,23 @@ Parameter:
 Return:
 	None
 **************************************************/
-void Send_Packet(RFM73_TRx_TypeDef type,unsigned char* pbuf,unsigned char len)
+unsigned char Send_Packet(RFM73_TRx_TypeDef type,unsigned char* pbuf,unsigned char len)
 {
 	unsigned char fifo_sta;
+	unsigned char status;
 	
 	fifo_sta=SPI_Read_Reg(FIFO_STATUS);	// read register FIFO_STATUS's value
 	if((fifo_sta&FIFO_STATUS_TX_FULL)==0)//if not full, send data (write buff)
 	{ 
 		//GPIO_WriteHigh(GPIOA, GPIO_PIN_4);	// RED LIGHT = 1	SYGNALIZACJA !!!	//FIXME: Je¿li potrzebna w³¹czyæ sygnalizacjê LEDem
-		SPI_Write_Buf(WRITE_REG, (RFM73_RegAddr_TypeDef)type, pbuf, len); // Writes data to buffer
+		SPI_Write_Buf(WRITE_REG, type, pbuf, len); // Writes data to buffer
+		status=SPI_Read_Reg(STATUS);	// read register STATUS's value
 		//delay_50ms();
 		//Delay(50);
 		//GPIO_WriteLow(GPIOA, GPIO_PIN_4);	// RED LIGHT = 0	SYGNALIZACJA !!!		//FIXME: Je¿li potrzebna w³¹czyæ sygnalizacjê LEDem
 		//Delay(50);
-	}	  	 	
+	}
+	return status;
 }
 
 /**************************************************
@@ -359,7 +362,7 @@ void Receive_Packet(unsigned char *rx_buf, unsigned char *len)
 	{
 		do
 		{
-			*len=SPI_Read_Reg((RFM73_RegAddr_TypeDef)R_RX_PL_WID_CMD);	// read length of recived packet
+			*len=SPI_Read_Reg(R_RX_PL_WID_CMD);	// read length of recived packet
 
 			if(*len<=MAX_PACKET_LEN)
 			{
@@ -387,7 +390,7 @@ void Ini_Bank0()
 	
 	for(j=0;j<23;j++)	//initialize RFM73 - REGISTERS
 	{
-		SPI_Write_Reg(WRITE_REG, (RFM73_RegAddr_TypeDef)Bank0_Reg[j][0], Bank0_Reg[j][1]);
+		SPI_Write_Reg(WRITE_REG,Bank0_Reg[j][0], Bank0_Reg[j][1]);
 	}
 	
 	for(j=0;j<5;j++)	//initialize RFM73 - PIPES (RX0)
@@ -413,7 +416,7 @@ void Ini_Bank0()
 		SPI_Activate(ACTIVATE_CMD,0x73); // Activate
 	for(j=22;j>=21;j--)
 	{
-		SPI_Write_Reg(WRITE_REG,(RFM73_RegAddr_TypeDef)Bank0_Reg[j][0], Bank0_Reg[j][1]); // Reinitialize the start value of DYNPD and FEATURE
+		SPI_Write_Reg(WRITE_REG,Bank0_Reg[j][0], Bank0_Reg[j][1]); // Reinitialize the start value of DYNPD and FEATURE
 	}
 }
 void Ini_Bank1()
@@ -487,7 +490,7 @@ char RFM73_Initialize()
 	//delay_50ms();
 	Delay(50);
 	SwitchCFG(1);
-	if(SPI_Read_Reg((RFM73_RegAddr_TypeDef)RFM73_ID_Reg)!= RFM73_ID) return RFM73_ERROR;
+	if(SPI_Read_Reg(RFM73_ID_Reg)!= RFM73_ID) return RFM73_ERROR;
 	SwitchCFG(0);	//switch back to Bank0 register access
 	return RFM73_OK;
 }
@@ -520,7 +523,8 @@ void RFM73_SPI_Conf(void)
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
   SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+  //SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 0;
   SPI_Init(RFM73_SPI, &SPI_InitStructure);
