@@ -263,8 +263,8 @@ void EXTI3_IRQHandler(void)
 						}
 						if((rx_buf[0] == TRANS_START)&&(chksum == rx_buf[len-1]))
 						{
-//							for (i = 0; i < len; i++)
-//							USART1_Send(rx_buf[i]);
+							for (i = 0; i < len; i++)
+							USART1_Send(rx_buf[i]);
 							licznik++;
 						}else
 						{

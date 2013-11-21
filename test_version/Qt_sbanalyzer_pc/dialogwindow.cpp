@@ -8,7 +8,9 @@ DialogWindow::DialogWindow(QWidget *parent) :
     ui(new Ui::DialogWindow),
     command(0),
     measurement(false),
-    configurationInProgress(false)
+    configurationInProgress(false),
+    count(0),
+    measTime(5)
 
 {
     //-------Ui settings---------------------------//
@@ -39,7 +41,7 @@ DialogWindow::DialogWindow(QWidget *parent) :
     timerMes->stop();
 
     timerCom = new QTimer(this);
-    timerCom->setInterval(100);
+    timerCom->setInterval(10000);
     timerCom->stop();
 
  //   confWind->show();
@@ -59,8 +61,8 @@ DialogWindow::DialogWindow(QWidget *parent) :
     //buttons
     connect(ui->closeButton, SIGNAL(clicked()), SLOT(closeWindow()));
     connect(ui->clearTerminalButton, SIGNAL(clicked()), SLOT(clearTerminal()));
-    connect(ui->startButton, SIGNAL(clicked()),SLOT(onStartButton()));
-    connect(ui->stopButton, SIGNAL(clicked()), SLOT(onStopButton()));
+   // connect(ui->startButton, SIGNAL(clicked()),SLOT(onStartButton()));
+   // connect(ui->stopButton, SIGNAL(clicked()), SLOT(onStopButton()));
     //timers
     connect(timerMes, SIGNAL(timeout()), SLOT(prepareDataMeasurement()));
     connect(timerCom, SIGNAL(timeout()), SLOT(onCom()));
@@ -123,15 +125,15 @@ void DialogWindow::onOpenCloseButtonClicked()
     if (!port->isOpen()) {
         port->setPortName(ui->portBox->currentText());
         port->open(QIODevice::ReadWrite);
-        command = 0x03;
-        timerCom->setInterval(100);
-        timerCom->start();
+      //  command = 0x03;
+     //   timerCom->setInterval(100);
+     //   timerCom->start();
     }
     else {
         command = 0x03;
-        port->write(&command);
-        command = 0x00;
-        measurement = false;
+      //  port->write(&command);
+     ////   command = 0x00;
+      //  measurement = false;
         port->close();
     }
 
@@ -193,7 +195,7 @@ void DialogWindow::sendTextEdit()
     if(!ui->sendEdit->toPlainText().isEmpty())
     {
         bufor = ui->sendEdit->toPlainText();
-        ui->recvEdit->insertPlainText(QString("YOU:>") + bufor);
+        ui->recvEdit->insertPlainText(QString("YOU:> ") + bufor);
         if(port->isOpen())
         {
             if(bufor == QString("start\n"))
@@ -238,6 +240,8 @@ void DialogWindow::onSendConfCommand(ConfCmd _cmd)
     qDebug()<<"buf[5]"<<(unsigned char)bufor.at(5)<<"   ~buf[5]"<<~(unsigned char)bufor.at(5);
     qDebug()<<"buf[6]"<<(unsigned char)bufor.at(6)<<"   ~buf[6]"<<~(unsigned char)bufor.at(6);
 
+    measTime = _cmd.getMeasurementTime();
+
     QByteArray dane;
     port->write(bufor);
     char _end;
@@ -246,7 +250,7 @@ void DialogWindow::onSendConfCommand(ConfCmd _cmd)
         if(port->getChar(&_end) == true)
            dane.append(_end);
     }while(_end != 0x0d);
-    ui->recvEdit->insertPlainText(QString("SB:>") + QString(dane));
+    ui->recvEdit->insertPlainText(QString("SB:> ") + QString(dane));
 }
 
 void DialogWindow::onStartCommand()
@@ -264,9 +268,18 @@ void DialogWindow::onStartCommand()
         if(port->getChar(&_end) == true)
            dane.append(_end);
     }while(_end != 0x0d);
-    ui->recvEdit->insertPlainText(QString("SB:>") + QString(dane));
+    ui->recvEdit->insertPlainText(QString("SB:> ") + QString(dane));
     port->readAll();
     port->flush();
+    if(QString(dane) == QString("ACK\r"))
+    {
+        timerCom->setInterval(measTime* 1000 + 3000);
+        timerCom->start();
+        timerMes->setInterval(50);
+        timerMes->start();
+        ui->recvEdit->insertPlainText("PC:> Measuring");
+        ui->sendEdit->setEnabled(false);
+    }
 }
 
 /*---------------------------------------------------------------------------------*/
@@ -275,6 +288,12 @@ void DialogWindow::onStartCommand()
 
 void DialogWindow::onCom()
 {
+    qDebug()<<"TIMER COM";
+    timerMes->stop();
+    timerCom->stop();
+    ui->recvEdit->insertPlainText(QString("\r\nPC:> End of measurement.\r\n"));
+    ui->sendEdit->setEnabled(true);
+    count = 0;
 }
 
 /*---------------------------------------------------------------------------------*/
@@ -285,6 +304,7 @@ void DialogWindow::prepareDataMeasurement()
 {
     char startByte = 'S';
     bool startByteFound = false;
+   // qDebug()<<"TIMER MEAS";
 
         QByteArray array = port->readAll();
 
@@ -295,12 +315,12 @@ void DialogWindow::prepareDataMeasurement()
                 while(!array.startsWith(startByte))
                 {
                     array.remove(0,1);
-                  //  qDebug()<<"szukam pocz¹tku ramki";
+                    //qDebug()<<"szukam pocz¹tku ramki";
                 }
                 if( array.at(frameLenght) != startByte ) // char at 0 is not a start byte
                 {
                     array.remove(0,1); // remove it
-                  //  qDebug()<<"nie ma nastêpnego pocz¹tku ramki";
+                   //qDebug()<<"nie ma nastêpnego pocz¹tku ramki";
                 }
                 else
                 {
@@ -308,8 +328,28 @@ void DialogWindow::prepareDataMeasurement()
                 }
             }
 
+//            int count = array.length()/16;
+
+//            for(int i = 0; i < count; i++)
+//            {
+//                ui->recvEdit->insertPlainText(QString(" ax: ") + QString::number(array.at(i*16+1)*0x100+array.at(i*16+0)));
+//                ui->recvEdit->insertPlainText(QString(" ay: ") + QString::number(array.at(i*16+3)*0x100+array.at(i*16+2)));
+//                ui->recvEdit->insertPlainText(QString(" az: ") + QString::number(array.at(i*16+5)*0x100+array.at(i*16+4)));
+//                ui->recvEdit->insertPlainText(QString(" gx: ") + QString::number(array.at(i*16+6)*0x100+array.at(i*16+6)));
+//                ui->recvEdit->insertPlainText(QString(" gy: ") + QString::number(array.at(i*16+9)*0x100+array.at(i*16+8)));
+//                ui->recvEdit->insertPlainText(QString(" gz: ") + QString::number(array.at(i*16+11)*0x100+array.at(i*16+10)));
+//                ui->recvEdit->insertPlainText(QString("\r\n"));
+//            }
+
+             count += array.length();
+             if(count > 1000)
+             {
+                 count = 0;
+                 ui->recvEdit->insertPlainText(" .");
+             }
              emit dataAvaible(array);
         }
+
 
 }
 
@@ -332,10 +372,10 @@ void DialogWindow::onInfoCommand()
     {
         InfoCmd cmd;
         cmd.loadCmd(dane.constData());
-        ui->recvEdit->insertPlainText(QString("SB:>") + cmd.printCmd());
+        ui->recvEdit->insertPlainText(QString("SB:> ") + cmd.printCmd());
     }else
     {
-        ui->recvEdit->insertPlainText(QString("SB:>") + QString(dane));
+        ui->recvEdit->insertPlainText(QString("SB:> ") + QString(dane));
     }
 
 }

@@ -39,6 +39,9 @@ private:
     bool configurationInProgress;
     char command;           //command number
 
+    long unsigned int count;
+    long unsigned int measTime;
+
 
 
 
@@ -67,6 +70,7 @@ public slots:
     void onInfoCommand();
     void onSendConfCommand(ConfCmd _cmd);
 
+   // void onMeasTimmer(void);
 
 signals:
     void dataAvaible(QByteArray);  //prepared new measurements
