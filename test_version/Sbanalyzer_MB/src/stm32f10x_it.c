@@ -169,6 +169,19 @@ void EXTI2_IRQHandler(void)
 						
 					}
 					break;
+					case Hello_Cmd: //conf
+					{
+						LED_ON();
+						Delay(switchTxToRxDelay);
+						acceptedCmd();
+						
+						Delay(200);	
+						RFM73_SwitchToRxMode();
+						Delay(switchTxToRxDelay);
+						LED_OFF();
+						
+					}
+					break;
 				}
 			}else 
 			{

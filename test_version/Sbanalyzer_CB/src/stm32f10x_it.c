@@ -251,8 +251,7 @@ void EXTI3_IRQHandler(void)
 					} break;
 					case 'N':
 					{
-							RFM73_SwitchToTxMode();
-							//noAcceptedCmd();
+							acceptedCmd();
 					} break;
 					case 'S':
 					{
@@ -275,10 +274,10 @@ void EXTI3_IRQHandler(void)
 							LED_1_Change();
 							licznik = 0;
 						}
-					}
+					} break;
 					default:
 					{
-						//noAcceptedCmd();
+						noAcceptedCmd();
 					}
 				}
 			}

@@ -44,6 +44,10 @@ DialogWindow::DialogWindow(QWidget *parent) :
     timerCom->setInterval(10000);
     timerCom->stop();
 
+    timerInit = new QTimer(this);
+    timerInit->setInterval(1000);
+    timerInit->stop();
+
  //   confWind->show();
 
 //    command = 0;
@@ -66,6 +70,7 @@ DialogWindow::DialogWindow(QWidget *parent) :
     //timers
     connect(timerMes, SIGNAL(timeout()), SLOT(prepareDataMeasurement()));
     connect(timerCom, SIGNAL(timeout()), SLOT(onCom()));
+    connect(timerInit, SIGNAL(timeout()), SLOT(initializationHelloRepeater()));
 
     connect(confWind, SIGNAL(newConf(ConfCmd)), SLOT(onSendConfCommand(ConfCmd)));
 
@@ -100,6 +105,13 @@ void DialogWindow::setTimerMes(int interval)
 {
     timerMes->setInterval(interval);
     timerMes->stop();
+}
+
+void DialogWindow::scrollDown()
+{
+    QTextCursor *c = &(ui->recvEdit->textCursor());
+    c->movePosition(QTextCursor::End);
+    ui->recvEdit->setTextCursor(*c);
 }
 
 /*---------------------------------------------------------------------------------*/
@@ -141,6 +153,7 @@ void DialogWindow::onOpenCloseButtonClicked()
         if (port->queryMode() == QextSerialPort::Polling)
         ui->led->turnOn();
         ui->recvEdit->insertPlainText("PC:> The measurement system has been connected.\n");
+        timerInit->start();
     }
     else {
        // timer->stop();
@@ -184,6 +197,36 @@ void DialogWindow::onStopButton()
     }else ui->recvEdit->insertPlainText("PC:> The measurement system is not connected.\n");
 }
 
+void DialogWindow::initializationHelloRepeater()
+{
+
+    QByteArray dane;
+    unsigned int _timeOut = 200;
+
+    HelloCmd _cmd;
+    port->write(_cmd.getHelloCmd());
+
+    char _end;
+    do
+    {
+        if(port->getChar(&_end) == true)
+           dane.append(_end);
+    }while(_end != 0x0d);
+    port->readAll();
+    port->flush();
+    _timeOut --;
+
+    port->readAll();
+    port->flush();
+
+    if((QString(dane)==QString("ACK\r")))
+    {
+        ui->recvEdit->insertPlainText(QString("SB:> Hello MAN. I'm ready, so let's get started. ;)\r\n"));
+        timerInit->stop();
+    }
+    scrollDown();
+}
+
 
 
 /*-----------SEND AND RECIV TEXT EDIT----------------*/
@@ -209,6 +252,10 @@ void DialogWindow::sendTextEdit()
             if(bufor == QString("conf\n"))
             {
                 confWind->show();
+            }else
+            if(bufor == QString("hello\n"))
+            {
+                onHelloCommand();
             }
             else
             {
@@ -222,9 +269,7 @@ void DialogWindow::sendTextEdit()
             ui->sendEdit->clear();
         }
     }
-    QTextCursor *c = &(ui->recvEdit->textCursor());
-    c->movePosition(QTextCursor::End);
-    ui->recvEdit->setTextCursor(*c);
+    scrollDown();
 }
 
 void DialogWindow::onSendConfCommand(ConfCmd _cmd)
@@ -278,6 +323,7 @@ void DialogWindow::onStartCommand()
         timerMes->setInterval(50);
         timerMes->start();
         ui->recvEdit->insertPlainText("PC:> Measuring");
+        qDebug()<<"TIME "<<measTime* 1000 + 3000;
         ui->sendEdit->setEnabled(false);
     }
 }
@@ -294,6 +340,7 @@ void DialogWindow::onCom()
     ui->recvEdit->insertPlainText(QString("\r\nPC:> End of measurement.\r\n"));
     ui->sendEdit->setEnabled(true);
     count = 0;
+    scrollDown();
 }
 
 /*---------------------------------------------------------------------------------*/
@@ -315,12 +362,12 @@ void DialogWindow::prepareDataMeasurement()
                 while(!array.startsWith(startByte))
                 {
                     array.remove(0,1);
-                    //qDebug()<<"szukam pocz¹tku ramki";
+                   // qDebug()<<"szukam pocz¹tku ramki";
                 }
                 if( array.at(frameLenght) != startByte ) // char at 0 is not a start byte
                 {
                     array.remove(0,1); // remove it
-                   //qDebug()<<"nie ma nastêpnego pocz¹tku ramki";
+                  // qDebug()<<"nie ma nastêpnego pocz¹tku ramki";
                 }
                 else
                 {
@@ -368,6 +415,7 @@ void DialogWindow::onInfoCommand()
         if(port->getChar(&_end) == true)
            dane.append(_end);
     }while(_end != 0x0d);
+    qDebug()<<"RECEIVE ANSWER";
     if(QString(dane)!=QString("NACK\r"))
     {
         InfoCmd cmd;
@@ -378,5 +426,32 @@ void DialogWindow::onInfoCommand()
         ui->recvEdit->insertPlainText(QString("SB:> ") + QString(dane));
     }
 
+}
+
+void DialogWindow::onHelloCommand()
+{
+    QByteArray dane;
+    unsigned int _timeOut = 200;
+
+    HelloCmd _cmd;
+    port->write(_cmd.getHelloCmd());
+
+    char _end;
+    do
+    {
+        if(port->getChar(&_end) == true)
+           dane.append(_end);
+    }while(_end != 0x0d);
+    port->readAll();
+    port->flush();
+    _timeOut --;
+
+    port->readAll();
+    port->flush();
+
+    if((QString(dane)==QString("ACK\r")))
+        ui->recvEdit->insertPlainText(QString("SB:> Hello MAN. I'm ready, so let's get started. ;)\r\n"));
+    else
+        ui->recvEdit->insertPlainText(QString("PC:> Measurement board do not response. Reset measurement board, or wait a 10 seconds and repeat hello command\r\n"));
 }
 

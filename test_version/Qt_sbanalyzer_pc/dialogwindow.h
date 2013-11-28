@@ -34,6 +34,7 @@ private:
 
     QTimer *timerMes;      //measurement triger
     QTimer *timerCom;       //comunication triger
+    QTimer *timerInit;      // init comunication timer
 
     bool measurement;       //sate of measurement(true- running, false- stop)
     bool configurationInProgress;
@@ -54,11 +55,14 @@ private slots:
     void onOpenCloseButtonClicked();
 
     void onCom();           // send command to SA
+    void initializationHelloRepeater();
 
     void prepareDataMeasurement();
 
     void closeWindow();    //hide window
     void clearTerminal();
+
+    void scrollDown();
 
 public slots:
     void onStartButton();  //send start command
@@ -69,6 +73,7 @@ public slots:
     void onStartCommand();
     void onInfoCommand();
     void onSendConfCommand(ConfCmd _cmd);
+    void onHelloCommand();
 
    // void onMeasTimmer(void);
 

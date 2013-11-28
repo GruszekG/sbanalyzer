@@ -10,6 +10,11 @@ Cmd::Cmd(void)
 {
 }
 
+HelloCmd::HelloCmd(void)
+{
+    CmdID = Hello_Cmd;
+}
+
 unsigned char Cmd::getCmdID(void)
 {
     return CmdID;
@@ -278,6 +283,15 @@ ConfCmd::ConfCmd(InfoCmd _cmd)
     LIS3DHRange = _cmd.getAccRange();
     L3G4200DFreq = _cmd.getGyroFreq();
     L3G4200DRange = _cmd.getGyroRange();
+}
+
+QByteArray HelloCmd::getHelloCmd()
+{
+    QByteArray _cmd;
+    _cmd.push_back(CmdID);
+    _cmd.push_back(EndByte);
+
+    return _cmd;
 }
 
 void ConfCmd::setFreq(L3G4200D_ODR _freq)

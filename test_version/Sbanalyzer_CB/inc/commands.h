@@ -21,6 +21,8 @@ typedef enum
 	ReadReg_Cmd,
 
 	Info_Cmd,
+	
+	Hello_Cmd,
 
 	CmdCount
 

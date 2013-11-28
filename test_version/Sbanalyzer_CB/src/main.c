@@ -94,12 +94,21 @@ int main(void)
 						RFM73_SwitchToRxMode();
 						flushTXbuffer();
 						flushRXbuffer();
-				}
-							
+					}			
+				}	break;
+				case Hello_Cmd:
+				{
+						TIM2_SingleShot();
+						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, 2);
+
+						Delay(100);
+						RFM73_SwitchToRxMode();
+						flushTXbuffer();
+						flushRXbuffer();
 				}	break;
 				default:
 				{
-			//		noAcceptedCmd();		
+					noAcceptedCmd();		
 				}
 			}
 		//USART_ITConfig(USART1, USART_IT_TXE, ENABLE);	
