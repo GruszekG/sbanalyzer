@@ -5,11 +5,11 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    //MainWindow w;
+    //w.show();
 
-    //saveMeasurementsWindow s;
-    //s.show();
+    saveMeasurementsWindow s;
+    s.show();
     //RealTimePlotWindow r;
     //r.show();
     //DialogWindow d;
