@@ -15,6 +15,7 @@ void USART1_Config(void);
 void USART1_Send(uint8_t data);
 void USART1_SendText(uint8_t * text);
 void USART1_IRQHandler(void);
+void USART1_SendBuf(uint8_t * _buf, uint8_t _len);
 //uint8_t USART1_RecieveData(void);
 
 

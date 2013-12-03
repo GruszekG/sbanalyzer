@@ -17,6 +17,7 @@ public:
     ~MeasurementConfWindow();
 
     ConfCmd getSettings(void);
+    void loadSettings(InfoCmd _conf);
 public slots:
     void onOkButton(void);
     void onCancelButton(void);

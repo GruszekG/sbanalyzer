@@ -206,7 +206,22 @@ void LIS3DH_GetAcc_16_bits(uint8_t *vect, uint8_t* sum)
 	*sum += *(vect+5);
 	
 	LIS3DH_SPI_CS_Disable();
+}					
+
+LIS3DH_Range LIS3DH_Get_Range(void)
+{
+	char _range;
+	LIS3DH_ReadRegister(LIS3DH_CTRL_REG4, &_range);
+	return _range&0x30;
 }
+
+LIS3DH_ODR LIS3DH_Get_ODR(void)
+{
+	char _ODR;
+	LIS3DH_ReadRegister(LIS3DH_CTRL_REG1, &_ODR);
+	return _ODR&0xf0;
+}
+
 /*---------Single tap-tap configuration--------------------//
 
 InteruptPin: 1: interrupt pin 1; 2: interrupt pin 2;

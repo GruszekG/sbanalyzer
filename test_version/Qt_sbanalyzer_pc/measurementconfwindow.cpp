@@ -30,6 +30,7 @@ MeasurementConfWindow::MeasurementConfWindow(QWidget *parent) :
     ui->TimeSpinBox->setMaximum(3600);
 
     connect(ui->OkButton,SIGNAL(clicked()),this,SLOT(onOkButton()));
+    connect(ui->CancelButton, SIGNAL(clicked()), this, SLOT(onCancelButton()));
     connect(ui->AccComboBox, SIGNAL(currentIndexChanged(int)),this,SLOT(onAccChange(int)));
     connect(ui->GyroComboBox, SIGNAL(currentIndexChanged(int)),this,SLOT(onGyroChange(int)));
     connect(ui->TimeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onTimeChange(int)));
@@ -70,11 +71,11 @@ void MeasurementConfWindow::onGyroChange(int idx)
 {
     settings.setGyroRange((L3G4200D_Range)ui->GyroComboBox->itemData(idx).toInt());
     #ifdef QDEBUG_H
-    qDebug()<<"Gyro range: "<<settings.printGyroRange();
+    qDebug()<<"Gyro range: "<<settings.printGyroRange()<< "index" << idx;
     #endif
 }
 
-ConfCmd MeasurementConfWindow::getSettings()
+ConfCmd MeasurementConfWindow::getSettings(void)
 {
     return settings;
 }
@@ -90,7 +91,33 @@ void MeasurementConfWindow::onOkButton()
 
 void MeasurementConfWindow::onCancelButton()
 {
+    close();
+}
 
+void MeasurementConfWindow::loadSettings(InfoCmd _conf)
+{
+    for(int i = 0; i < 4; i++)
+    {
+        if(_conf.getGyroFreq() == ui->FreqComboBox->itemData(i).toInt())
+        {
+            settings.setFreq((L3G4200D_ODR)_conf.getGyroFreq());
+        }
+
+    }
+    for(int i = 0; i < 3; i++)
+    {
+        if(_conf.getAccRange() == ui->AccComboBox->itemData(i).toInt())
+        {
+            settings.setAccRange((LIS3DH_Range)_conf.getAccRange());
+        }
+        if(_conf.getGyroRange() == ui->GyroComboBox->itemData(i).toInt())
+        {
+            settings.setGyroRange((L3G4200D_Range)_conf.getGyroRange());
+        }
+
+    }
+
+    settings.setTime(_conf.getMeasurementTime());
 }
 
 

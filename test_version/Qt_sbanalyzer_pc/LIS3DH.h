@@ -86,7 +86,7 @@ typedef enum
 	LIS3DH_200Hz				=(uint8_t)0x60,
 	LIS3DH_400Hz				=(uint8_t)0x70,
 	LIS3DH_LP_1600Hz			=(uint8_t)0x88, //Low power mode
-	LIS3DH_12500Hz				=(uint8_t)0x90, //Normal power mode
+    LIS3DH_1250Hz				=(uint8_t)0x90, //Normal power mode
 	LIS3DH_LP_5kHz				=(uint8_t)0x98 //Low power mode
 }	LIS3DH_ODR;
 

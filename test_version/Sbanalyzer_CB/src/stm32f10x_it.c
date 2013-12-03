@@ -253,6 +253,15 @@ void EXTI3_IRQHandler(void)
 					{
 							acceptedCmd();
 					} break;
+					case Info_Cmd:
+					{
+							TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+							TIM_Cmd(TIM2, DISABLE);  
+							TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
+						
+							if(Cmd_OK != infoCommand(rx_buf))
+								noAcceptedCmd();
+					} break;
 					case 'S':
 					{
 							chksum = 0;

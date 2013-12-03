@@ -130,6 +130,19 @@ void L3G4200D_WriteRegister(L3G4200D_Reg addr, char v)
 	L3G4200D_SPI_CS_Disable();
 }
 
+L3G4200D_Range L3G4200D_Get_Range(void)
+{
+	char _range;
+	L3G4200D_ReadRegister(L3G4200D_CTRL_REG4,&_range);
+	return _range&0x30;	
+}
+L3G4200D_ODR L3G4200D_Get_ODR(void)
+{
+	char _ODR;
+	L3G4200D_ReadRegister(L3G4200D_CTRL_REG1,&_ODR);
+	return _ODR&0xC0;
+}
+
 
 void L3G4200D_GetRot_8_bits(char * x, char * y, char * z)
 {

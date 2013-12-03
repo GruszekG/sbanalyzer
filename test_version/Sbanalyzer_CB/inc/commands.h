@@ -108,7 +108,7 @@ typedef struct
 
 }	ConfCommand_s;
 
-CheckCmd infoCommand(void);
+CheckCmd infoCommand(unsigned char *_buf);
 
 CheckCmd startCommand(void);
 
@@ -117,6 +117,6 @@ CheckCmd confCommand(void);
 void acceptedCmd(void);
 void noAcceptedCmd(void);
 
-void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd);
+//void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd);
 
 #endif

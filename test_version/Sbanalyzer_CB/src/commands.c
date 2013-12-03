@@ -14,52 +14,45 @@ extern unsigned char buforTxRFM73[17];
 
 
 
-void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd)
+//void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd)
+//{
+//	unsigned int i = 0;
+//	buforTx[0] = _infoCmd.CmdID;
+//	buforTx[1] = _infoCmd.LIS3DHFreq;
+//	buforTx[2] = _infoCmd.LIS3DHRange;
+//	buforTx[3] = _infoCmd.L3G4200DFreq;
+//	buforTx[4] = _infoCmd.L3g4200DRange;
+//	buforTx[5] = _infoCmd.TimeMSB;
+//	buforTx[6] = _infoCmd.TimeLSB;
+//	buforTx[7] = _infoCmd.BatteryLevel;
+
+//	buforTx[8] = 0;
+
+//	for(i = 0; i<InfoCmd_Length; i++)
+//	{
+//		buforTx[8] += buforTx[i]; 
+//	}
+//	buforTx[9] = 0x0d; //'stop' byte	
+//}
+
+CheckCmd infoCommand(unsigned char *_buf)
 {
-	unsigned int i = 0;
-	buforTx[0] = _infoCmd.CmdID;
-	buforTx[1] = _infoCmd.LIS3DHFreq;
-	buforTx[2] = _infoCmd.LIS3DHRange;
-	buforTx[3] = _infoCmd.L3G4200DFreq;
-	buforTx[4] = _infoCmd.L3g4200DRange;
-	buforTx[5] = _infoCmd.TimeMSB;
-	buforTx[6] = _infoCmd.TimeLSB;
-	buforTx[7] = _infoCmd.BatteryLevel;
-
-	buforTx[8] = 0;
-
-	for(i = 0; i<InfoCmd_Length; i++)
-	{
-		buforTx[8] += buforTx[i]; 
-	}
-	buforTx[9] = 0x0d; //'stop' byte	
-}
-
-CheckCmd infoCommand()
-{
-	GetInfoCommand_s cmd;
-	unsigned char _buf[2]= { Info_Cmd, 0x0d };
-	Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);
+	unsigned int i;
+	unsigned char checkSum =  0;
 	
-	cmd.CmdID = Info_Cmd;
-	cmd.LIS3DHFreq = LIS3DH_12500Hz;
-	cmd.LIS3DHRange = LIS3DH_8G;
-	cmd.L3G4200DFreq = L3G4200D_800Hz;
-	cmd.L3g4200DRange = L3G4200D_2000dps;
-	cmd.TimeMSB = 0x03;
-	cmd.TimeLSB = 0x0c;
-	cmd.BatteryLevel = 0x50;
-	cmd.CmdCheckSum = 0x00;
-
-	if(buforRx[0] == Info_Cmd)
+	for( i = 0; i < 8; i++)
 	{
-		writeInfoCmdToTxBuffor(cmd);
-		return Cmd_OK;
+				checkSum += _buf[i];
 	}
-	else
-	{
+	if(checkSum != _buf[8])
 		return Cmd_ERROR;
-	}  
+		
+	if(0x0d != _buf[9])
+		return Cmd_ERROR;
+		
+	USART1_SendBuf(_buf, 10);
+	
+	return Cmd_OK;
 }
 
 CheckCmd startCommand()

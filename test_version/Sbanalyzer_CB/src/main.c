@@ -77,8 +77,14 @@ int main(void)
 				}	break;
 				case Info_Cmd:
 				{
-					if(Cmd_OK != infoCommand())
-						noAcceptedCmd();
+						SPI_Command(FLUSH_RX);//flush Rx
+						SPI_Command(FLUSH_TX);//flush Rx
+						TIM2_SingleShot();
+						Send_Packet(W_TX_PAYLOAD_NOACK_CMD, buforRx, ConfCmd_Length + 1);
+						Delay(100);
+						RFM73_SwitchToRxMode();
+						flushTXbuffer();
+						flushRXbuffer();
 				}	break;
 				case Conf_Cmd:
 				{

@@ -13,52 +13,50 @@
 extern uint32_t measurementTime;
 extern uint32_t measurementFreq;
 
-void writeInfoCmdToTxBuffor(GetInfoCommand_s _infoCmd)
+void sendInfo(GetInfoCommand_s _infoCmd)
 {
-//	unsigned int i = 0;
-//	buforTx[0] = _infoCmd.CmdID;
-//	buforTx[1] = _infoCmd.LIS3DHFreq;
-//	buforTx[2] = _infoCmd.LIS3DHRange;
-//	buforTx[3] = _infoCmd.L3G4200DFreq;
-//	buforTx[4] = _infoCmd.L3g4200DRange;
-//	buforTx[5] = _infoCmd.TimeMSB;
-//	buforTx[6] = _infoCmd.TimeLSB;
-//	buforTx[7] = _infoCmd.BatteryLevel;
-
-//	buforTx[8] = 0;
-
-//	for(i = 0; i<InfoCmd_Length; i++)
-//	{
-//		buforTx[8] += buforTx[i]; 
-//	}
-//	buforTx[9] = 0x0d; //'stop' byte	
+	unsigned char _buf[10];
+	_buf[0] = _infoCmd.CmdID;
+	_buf[1] = _infoCmd.LIS3DHFreq;
+	_buf[2] = _infoCmd.LIS3DHRange;
+	_buf[3] = _infoCmd.L3G4200DFreq;
+	_buf[4] = _infoCmd.L3G4200DRange;
+	_buf[5] = _infoCmd.TimeMSB;
+	_buf[6] = _infoCmd.TimeLSB;
+	_buf[7] = _infoCmd.BatteryLevel;
+	_buf[8] = _infoCmd.CmdCheckSum;
+	
+	_buf[9] = 0x0d; //'stop' byte
+	
+	Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 10);
 }
 
-CheckCmd infoCommand()
-{
-//	GetInfoCommand_s cmd;
-//	unsigned char _buf[2]= { Info_Cmd, 0x0d };
-//	Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x02);
-//	
-//	cmd.CmdID = Info_Cmd;
-//	cmd.LIS3DHFreq = LIS3DH_12500Hz;
-//	cmd.LIS3DHRange = LIS3DH_8G;
-//	cmd.L3G4200DFreq = L3G4200D_800Hz;
-//	cmd.L3g4200DRange = L3G4200D_2000dps;
-//	cmd.TimeMSB = 0x03;
-//	cmd.TimeLSB = 0x0c;
-//	cmd.BatteryLevel = 0x50;
-//	cmd.CmdCheckSum = 0x00;
-
-//	if(buforRx[0] == Info_Cmd)
-//	{
-//		writeInfoCmdToTxBuffor(cmd);
-//		return Cmd_OK;
-//	}
-//	else
-//	{
+CheckCmd infoCommand(unsigned char* _buf)
+{		
+	GetInfoCommand_s cmd;
+	
+	if(_buf[0] != Info_Cmd)
 	return Cmd_ERROR;
-//	}  
+
+	RFM73_to_LIS3DH();
+	cmd.CmdID = Info_Cmd;
+	cmd.L3G4200DFreq = L3G4200D_Get_ODR();
+	cmd.L3G4200DRange = L3G4200D_Get_Range();
+	cmd.LIS3DHFreq = LIS3DH_Get_ODR();
+	cmd.LIS3DHRange = LIS3DH_Get_Range();
+	
+	LIS3DH_to_RFM73();//change SPI setting for RFM73
+	
+	cmd.TimeLSB = (unsigned char) (measurementTime&0xff);
+	cmd.TimeMSB = (unsigned char) ((measurementTime&0xff00)>>8);
+	
+	cmd.BatteryLevel = 0x80;
+	
+	cmd.CmdCheckSum = getInfoCmdChecksum(cmd);
+	
+	sendInfo(cmd);
+	
+	return Cmd_OK;
 }
 
 CheckCmd confCommand(unsigned char* _buf)
@@ -137,4 +135,19 @@ void noAcceptedCmd(void)
 	_buf[3] = 'K';
 	_buf[4] = 0x0d;
 	Send_Packet(W_TX_PAYLOAD_NOACK_CMD, _buf, 0x05);
+}
+
+unsigned char getInfoCmdChecksum(GetInfoCommand_s _cmd)
+{
+	unsigned char sum = 0;
+	sum += _cmd.CmdID;
+	sum += _cmd.LIS3DHFreq;
+	sum += _cmd.LIS3DHRange;
+	sum += _cmd.L3G4200DFreq;
+	sum += _cmd.L3G4200DRange;
+	sum += _cmd.TimeLSB;
+	sum += _cmd.TimeMSB;
+	sum += _cmd.BatteryLevel;
+	
+	return sum;
 }

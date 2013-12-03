@@ -48,6 +48,10 @@ DialogWindow::DialogWindow(QWidget *parent) :
     timerInit->setInterval(1000);
     timerInit->stop();
 
+    timerGetInfo = new QTimer(this);
+    timerGetInfo->setInterval(1000);
+    timerGetInfo->stop();
+
  //   confWind->show();
 
 //    command = 0;
@@ -71,6 +75,7 @@ DialogWindow::DialogWindow(QWidget *parent) :
     connect(timerMes, SIGNAL(timeout()), SLOT(prepareDataMeasurement()));
     connect(timerCom, SIGNAL(timeout()), SLOT(onCom()));
     connect(timerInit, SIGNAL(timeout()), SLOT(initializationHelloRepeater()));
+    connect(timerGetInfo, SIGNAL(timeout()), SLOT(onTimerGetInfo()));
 
     connect(confWind, SIGNAL(newConf(ConfCmd)), SLOT(onSendConfCommand(ConfCmd)));
 
@@ -131,6 +136,12 @@ void DialogWindow::onBaudRateChanged(int idx)
     port->setBaudRate((BaudRateType)ui->baudRateBox->itemData(idx).toInt());
     qDebug("baud changed");
 }
+void DialogWindow::onTimerGetInfo()
+{
+    onInfoCommand();
+    qDebug("get info");
+    timerGetInfo->stop();
+}
 
 void DialogWindow::onOpenCloseButtonClicked()
 {
@@ -153,6 +164,7 @@ void DialogWindow::onOpenCloseButtonClicked()
         if (port->queryMode() == QextSerialPort::Polling)
         ui->led->turnOn();
         ui->recvEdit->insertPlainText("PC:> The measurement system has been connected.\n");
+        ui->recvEdit->insertPlainText("PC:> Checking connection ....\n");
         timerInit->start();
     }
     else {
@@ -222,7 +234,9 @@ void DialogWindow::initializationHelloRepeater()
     if((QString(dane)==QString("ACK\r")))
     {
         ui->recvEdit->insertPlainText(QString("SB:> Hello MAN. I'm ready, so let's get started. ;)\r\n"));
+        ui->recvEdit->insertPlainText(QString("PC:> Connection OK\n"));
         timerInit->stop();
+        timerGetInfo->start();
     }
     scrollDown();
 }
@@ -402,12 +416,10 @@ void DialogWindow::prepareDataMeasurement()
 
 void DialogWindow::onInfoCommand()
 {
-    QByteArray cmdToSend;
+    InfoCmd _cmd;
 
     port->readAll();
-    cmdToSend.append(Info_Cmd);
-    cmdToSend.append(0x0d);
-    port->write(cmdToSend.constData());
+    port->write(_cmd.getInfoCmdToBuf());
 
     QByteArray dane;
     char _end;
@@ -419,12 +431,13 @@ void DialogWindow::onInfoCommand()
     if(QString(dane)!=QString("NACK\r"))
     {
         InfoCmd cmd;
-        cmd.loadCmd(dane.constData());
+        cmd.loadCmd((const unsigned char*)dane.constData());
         ui->recvEdit->insertPlainText(QString("SB:> ") + cmd.printCmd());
     }else
     {
         ui->recvEdit->insertPlainText(QString("SB:> ") + QString(dane));
     }
+    scrollDown();
 
 }
 

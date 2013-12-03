@@ -81,6 +81,12 @@ void USART1_Send(uint8_t data)
   while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
   {}
 }
+void USART1_SendBuf(uint8_t * _buf, uint8_t _len)
+{
+	unsigned int i;
+	for(i = 0; i < _len; i++)
+		USART1_Send(_buf[i]);
+}
 
 void USART1_SendText(uint8_t * text)
 {

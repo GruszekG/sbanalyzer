@@ -81,14 +81,14 @@ void Cmd::setCmdID(unsigned char _ID)
 }
 
 InfoCmd::InfoCmd(void)
-    :LIS3DHFreq(0)
-    ,LIS3DHRange(0)
-    ,L3G4200DFreq(0)
-    ,L3G4200DRange(0)
+    :LIS3DHFreq(LIS3DH_100Hz)
+    ,LIS3DHRange(LIS3DH_2G)
+    ,L3G4200DFreq(L3G4200D_100Hz)
+    ,L3G4200DRange(L3G4200D_250dps)
     ,BatteryLevel(0)
     ,MeasuermentTime(5)
 {
-
+    CmdID = Info_Cmd;
 }
 
 QString InfoCmd::printMeasurementTime()
@@ -96,7 +96,7 @@ QString InfoCmd::printMeasurementTime()
     return QString::number(MeasuermentTime, 10) + QString(" s");
 }
 
-/*virtual*/ bool InfoCmd::loadCmd(const char *_cmd)
+/*virtual*/ bool InfoCmd::loadCmd(const unsigned char *_cmd)
 {
     qDebug()<<"LODA CMD";
     if(checkInfoCmd(_cmd))
@@ -104,10 +104,10 @@ QString InfoCmd::printMeasurementTime()
         for(int i =0; i<6; i++)
             qDebug()<<"dane"<<i<<": "<<(unsigned char)_cmd[i];
         CmdID = _cmd[0];
-        LIS3DHFreq  = _cmd[1];
-        LIS3DHRange = _cmd[2];
-        L3G4200DFreq = _cmd[3];
-        L3G4200DRange = _cmd[4];
+        LIS3DHFreq  = (LIS3DH_ODR)_cmd[1];
+        LIS3DHRange = (LIS3DH_Range)_cmd[2];
+        L3G4200DFreq = (L3G4200D_ODR)_cmd[3];
+        L3G4200DRange = (L3G4200D_Range)_cmd[4];
         MeasuermentTime = ((quint16)_cmd[5]*0x10) + (quint16)_cmd[6];
         BatteryLevel = _cmd[7];
         CheckSum = _cmd[8];
@@ -129,11 +129,11 @@ QString InfoCmd::printMeasurementTime()
 
 }
 
-bool InfoCmd::checkInfoCmd(const char* _bufor)
+bool InfoCmd::checkInfoCmd(const unsigned char* _bufor)
 {
     if(_bufor[0] != Info_Cmd)
     {
-        qDebug()<<"ID ERROR";
+        qDebug()<<"ID ERROR receive:"<<_bufor[0];
                 return false;
     }
     unsigned char _checkSum = 0;
@@ -154,12 +154,17 @@ bool InfoCmd::checkInfoCmd(const char* _bufor)
 
 QString InfoCmd::printCmd()
 {
-    QString _info("Actual measurement board setting.\n");
-    _info += QString("Measurement freqency: ") + printFreqSet() + QString(".\n");
-    _info += QString("LIS3DH range: ") + printAccRange() + QString(".\n");
-    _info += QString("L3G4200D range: ") + printGyroRange() + QString(".\n");
-    _info += QString("Measurement time: ") + printMeasurementTime() + QString(".\n");
-    _info += QString("Battery level: ") + printBatteryLevel() + QString(".\n");
+    QString _info("\n----Actual measurement board settings------\n");
+    _info += QString("Measurement freqency:\t") + printFreqSet() + QString("\n");
+    _info += QString("LIS3DH:\n");
+    _info += QString("       ODR:\t\t")+ printAccFreq() +QString("\n");
+    _info += QString("       range:\t\t") + printAccRange() + QString("\n");
+    _info += QString("L3G4200D:\n");
+    _info += QString("       ODR:\t\t")+ printGyroFreq() + QString("\n");
+    _info += QString("       range:\t\t") + printGyroRange() + QString("\n");
+    _info += QString("Measurement time:\t") + printMeasurementTime() + QString("\n");
+    _info += QString("Battery level:\t\t") + printBatteryLevel() + QString("\n");
+    _info += QString("----------------------------------------------------\n");
     return _info;
 }
 
@@ -185,7 +190,7 @@ QString InfoCmd::printFreqSet()
 {
     QString _freq;
     qDebug()<<"L3G4200DFreq"<<L3G4200DFreq;
-    if(L3G4200DFreq == L3G4200D_100Hz)
+    if(L3G4200D_100Hz == L3G4200DFreq)
         _freq = "100 Hz";
     else if(L3G4200DFreq == L3G4200D_200Hz)
         _freq = "200 Hz";
@@ -194,9 +199,95 @@ QString InfoCmd::printFreqSet()
     else if(L3G4200DFreq == L3G4200D_800Hz)
         _freq = "800 Hz";
     else
-        _freq = "invalid settings";
+        _freq = "invalid freq settings";
+
+    qDebug()<<"INVALID FREQENCY SETTING ERROR ===== "<< L3G4200DFreq;
 
     return _freq;
+}
+
+QString InfoCmd::printAccFreq()
+{
+    QString _freq;
+    qDebug()<<"L3G4200DFreq"<<LIS3DHFreq;
+    if(LIS3DH_100Hz == LIS3DHFreq)
+        _freq = "100 Hz";
+    else if(LIS3DHFreq == LIS3DH_200Hz)
+        _freq = "200 Hz";
+    else if(LIS3DHFreq == LIS3DH_400Hz)
+        _freq = "400 Hz";
+    else if(LIS3DHFreq == LIS3DH_1250Hz)
+        _freq = "1250 Hz";
+    else
+        _freq = "invalid freq settings";
+
+    return _freq;
+}
+
+QString InfoCmd::printGyroFreq()
+{
+    QString _freq;
+    qDebug()<<"L3G4200DFreq"<<L3G4200DFreq;
+    if(L3G4200D_100Hz == L3G4200DFreq)
+        _freq = "100 Hz";
+    else if(L3G4200DFreq == L3G4200D_200Hz)
+        _freq = "200 Hz";
+    else if(L3G4200DFreq == L3G4200D_400Hz)
+        _freq = "400 Hz";
+    else if(L3G4200DFreq == L3G4200D_800Hz)
+        _freq = "800 Hz";
+    else
+        _freq = "invalid freq settings";
+
+    return _freq;
+}
+
+void InfoCmd::updateCheckSum(void)
+{
+    uint16byBytes _time;
+    _time.as_word = MeasuermentTime;
+
+    CheckSum =
+            CmdID +
+            LIS3DHFreq +
+            LIS3DHRange +
+            L3G4200DFreq +
+            L3G4200DRange +
+            _time.as_bytes.hi +
+            _time.as_bytes.lo +
+            BatteryLevel;
+
+}
+
+QByteArray InfoCmd::getInfoCmdToBuf()
+{
+    QByteArray _bufor;
+    uint16byBytes _time;
+    _time.as_word = MeasuermentTime;
+
+    updateCheckSum();
+
+    _bufor.push_back(CmdID);
+    _bufor.push_back(LIS3DHFreq);
+    _bufor.push_back(LIS3DHRange);
+    _bufor.push_back(L3G4200DFreq);
+    _bufor.push_back(L3G4200DRange);
+    _bufor.push_back(_time.as_bytes.hi);
+    _bufor.push_back(_time.as_bytes.lo);
+    _bufor.push_back(BatteryLevel);
+    _bufor.push_back(CheckSum);
+    _bufor.push_back(0x0d);
+//    qDebug()<<"CMD ID:"<< (unsigned int) CmdID;
+//    qDebug()<<"LIS3DHFreq:"<< (unsigned int) LIS3DHFreq;
+//    qDebug()<<"LIS3DHRange:"<< (unsigned int) LIS3DHRange;
+//    qDebug()<<"L3G4200DFreq:"<< (unsigned int) L3G4200DFreq;
+//    qDebug()<<"L3G4200DRange:"<< (unsigned int) L3G4200DRange;
+//    qDebug()<<"_time.as_bytes.hi"<< (unsigned int) _time.as_bytes.hi;
+//    qDebug()<<"_time.as_bytes.lo"<< (unsigned int) _time.as_bytes.lo;
+//    qDebug()<<"battery level: "<< (unsigned int) BatteryLevel;
+//    qDebug()<<"CheckSum"<< (unsigned int) CheckSum;
+
+    return _bufor;
 }
 
 QString ConfCmd::printConfig()
@@ -305,7 +396,7 @@ void ConfCmd::setFreq(L3G4200D_ODR _freq)
     else if (_freq == L3G4200D_400Hz)
         LIS3DHFreq =LIS3DH_400Hz;
     else if (_freq == L3G4200D_800Hz)
-        LIS3DHFreq = LIS3DH_12500Hz;
+        LIS3DHFreq = LIS3DH_1250Hz;
 }
 
 QByteArray ConfCmd::getConfCmdToBuf()

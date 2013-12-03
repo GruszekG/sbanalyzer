@@ -108,7 +108,9 @@ typedef struct
 
 }	ConfCommand_s;
 
-CheckCmd infoCommand(void);
+CheckCmd infoCommand(unsigned char* _buf);
+unsigned char getInfoCmdChecksum(GetInfoCommand_s _cmd);
+void sendInfo(GetInfoCommand_s cmd);
 
 CheckCmd startCommand(void);
 

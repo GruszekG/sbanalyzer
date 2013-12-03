@@ -201,6 +201,9 @@ L3G4200D_Status L3G4200D_Conf(L3G4200D_ODR ODR, L3G4200D_Range range);
 L3G4200D_Status L3G4200D_Sleep(void);
 L3G4200D_Status L3G4200D_Wake(void);
 
+L3G4200D_Range L3G4200D_Get_Range(void);
+L3G4200D_ODR L3G4200D_Get_ODR(void);
+
 void L3G4200D_ReadRegister(L3G4200D_Reg addr, char *v);
 void L3G4200D_WriteRegister(L3G4200D_Reg addr, char v);
 															 

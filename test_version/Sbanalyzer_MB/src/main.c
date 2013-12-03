@@ -11,6 +11,7 @@
 
 extern uint32_t measurementTime;
 extern uint32_t measurementFreq;
+//sdf
 
 /*---------------------------------------------*/
 /*---------------MAIN--------------------------*/
@@ -58,7 +59,7 @@ bool Init_board(void)
 
 	if(L3G4200D_Conf(L3G4200D_800Hz, L3G4200D_2000dps) == L3G4200D_ERROR) return FALSE;
 	Delay(50);
-	if(LIS3DH_Conf(LIS3DH_12500Hz, LIS3DH_2G, LIS3DH_NormalPowerMode) == LIS3DH_ERROR) return FALSE;
+	if(LIS3DH_Conf(LIS3DH_1250Hz, LIS3DH_2G, LIS3DH_NormalPowerMode) == LIS3DH_ERROR) return FALSE;
 	LIS3DH_SPI_CS_Disable();  
 
 	LPY4150AL_Conf();	 

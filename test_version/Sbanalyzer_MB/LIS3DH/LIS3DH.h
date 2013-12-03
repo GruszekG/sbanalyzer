@@ -86,7 +86,7 @@ typedef enum
 	LIS3DH_200Hz				=(uint8_t)0x60,
 	LIS3DH_400Hz				=(uint8_t)0x70,
 	LIS3DH_LP_1600Hz			=(uint8_t)0x88, //Low power mode
-	LIS3DH_12500Hz				=(uint8_t)0x90, //Normal power mode
+	LIS3DH_1250Hz				=(uint8_t)0x90, //Normal power mode
 	LIS3DH_LP_5kHz				=(uint8_t)0x98 //Low power mode
 }	LIS3DH_ODR;
 
@@ -322,7 +322,12 @@ struct TapTapInitStruct
 /*------Fnctions-------------------------------*/
 void LIS3DH_SPI_HwConfig(void);
 void LIS3DH_RebootMemory(void);
+
 LIS3DH_Status LIS3DH_Conf(LIS3DH_ODR ODR, LIS3DH_Range range, LIS3DH_PowerMode power_mode);
+
+LIS3DH_Range LIS3DH_Get_Range(void);
+LIS3DH_ODR LIS3DH_Get_ODR(void);
+
 void LIS3DH_EXTI_Enable(void);
 void LIS3DH_EXTI_Disable(void);
 
@@ -339,8 +344,6 @@ void LIS3DH_GetAcc_16_bits(uint8_t *vect, uint8_t* sum);
 void LIS3DH_GetAccVect(struct vector_a * V);
 
 void EXTI9_5_IRQHandler(void);
-
-
 
 
 

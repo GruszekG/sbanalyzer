@@ -35,6 +35,7 @@ private:
     QTimer *timerMes;      //measurement triger
     QTimer *timerCom;       //comunication triger
     QTimer *timerInit;      // init comunication timer
+    QTimer *timerGetInfo;
 
     bool measurement;       //sate of measurement(true- running, false- stop)
     bool configurationInProgress;
@@ -74,6 +75,7 @@ public slots:
     void onInfoCommand();
     void onSendConfCommand(ConfCmd _cmd);
     void onHelloCommand();
+    void onTimerGetInfo();
 
    // void onMeasTimmer(void);
 

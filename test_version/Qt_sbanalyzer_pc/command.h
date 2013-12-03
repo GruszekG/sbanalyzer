@@ -78,28 +78,33 @@ class InfoCmd : public Cmd
 {
     public:
         InfoCmd(void);
-        bool loadCmd(const char* _cmd);
+        bool loadCmd(const unsigned char *_cmd);
         QString printCmd(void);
-        bool checkInfoCmd(const char *_bufor);
-        QString printFreqSet(void);
+        bool checkInfoCmd(const unsigned char *_bufor);
+        QString printFreqSet();
+        QString printGyroFreq(void);
+        QString printAccFreq(void);
         QString printAccRange(void);
         QString printGyroRange(void);
         QString printBatteryLevel(void);
         QString printMeasurementTime();
-        inline unsigned char getAccRange(void) {return LIS3DHRange;}
-        inline unsigned char getGyroRange(void) {return L3G4200DRange;}
-        inline unsigned char getAccFreq(void) {return L3G4200DFreq;}
-        inline unsigned char getGyroFreq(void) {return L3G4200DFreq;}
+        inline LIS3DH_Range getAccRange(void) {return LIS3DHRange;}
+        inline L3G4200D_Range getGyroRange(void) {return L3G4200DRange;}
+        inline LIS3DH_ODR getAccFreq(void) {return LIS3DHFreq;}
+        inline L3G4200D_ODR getGyroFreq(void) {return L3G4200DFreq;}
         inline int getMeasurementTime(void) {return MeasuermentTime;}
 
+        QByteArray getInfoCmdToBuf();
+
     protected:
-        unsigned char	LIS3DHFreq;
-        unsigned char	LIS3DHRange;
-        unsigned char	L3G4200DFreq;
-        unsigned char	L3G4200DRange;
+        LIS3DH_ODR	LIS3DHFreq;
+        LIS3DH_Range	LIS3DHRange;
+        L3G4200D_ODR	L3G4200DFreq;
+        L3G4200D_Range	L3G4200DRange;
         quint16     MeasuermentTime;
 
     private:
+        void updateCheckSum(void);
         unsigned char	BatteryLevel;
 };
 
@@ -118,7 +123,7 @@ class ConfCmd : public InfoCmd
 
         QString printConfig(void);
         QByteArray getConfCmdToBuf();
-        void updateCheckSum(void);
+        void updateCheckSum();
 
 };
 
